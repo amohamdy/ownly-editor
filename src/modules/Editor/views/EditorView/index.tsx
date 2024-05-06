@@ -17,16 +17,19 @@ import { ReactComponent as IconLeftArrow } from 'shared/assets/images/icons/left
 import { ReactComponent as IconRightArrow } from 'shared/assets/images/icons/rightArrow.svg';
 import { Canvas } from 'fabric/fabric-impl';
 import useWindowDimensions from '../../../../hooks/useWindowDimensions';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import Axios from 'axios';
 
 function EditorView() {
 	const [selectedModelType, setSelectedModelType] = useState<any>(null);
+	const [token, setToken] = useState('');
+	const [productId, setProductId] = useState('');
 	const [threeD, setThreeD] = useState('');
 	const [leftArcMenuState, setLeftArcMenuState] = useState(true);
 	const [rightArcMenuState, setRightArcMenuState] = useState(true);
 	const classes = useStyles();
-	const { search } = useLocation();
+	const history = useHistory();
+	const location = useLocation();
 	const { width, height } = useWindowDimensions();
 
 	const {
@@ -97,7 +100,15 @@ function EditorView() {
 				return (width ?? 0) > 700 && (height ?? 0) > 450 ? <LeftArcMenu onChangeCanvasColor={onChangeCanvasColor} /> : null;
 		}
 	}, [onChangeCanvasColor, selectedCategory]);
+	const removeQueryParam = (paramName: string) => {
+		const searchParams = new URLSearchParams(location.search);
+		searchParams.delete(paramName);
 
+		history.replace({
+			pathname: location.pathname,
+			search: searchParams.toString(),
+		});
+	};
 	const renderRightSideMenu = useMemo(() => {
 		switch (selectedCategory) {
 			case 'Templates':
@@ -133,6 +144,7 @@ function EditorView() {
 		);
 		const data = await res.json();
 		console.log('data', data.items[0]);
+		setProductId(data.items[0].id);
 		setSelectedModelType({
 			id: data.items[0].sku,
 			sides: data.items[0].extension_attributes.editor_data.map((side: any) => {
@@ -150,12 +162,14 @@ function EditorView() {
 				};
 			}),
 		});
-		setThreeD(data.items[0].custom_attributes.find((attr: any) => attr.attribute_code === 'model_3d_filename').value);
+		setThreeD(data.items[0].custom_attributes.find((attr: any) => attr.attribute_code === 'model_3d_filename')?.value);
 	};
 
 	useEffect(() => {
-		if (search) {
-			const [key, sku] = search.split('=');
+		if (location.search) {
+			setToken(location.search.split('&')[1]?.split('=')[1]);
+			removeQueryParam('token');
+			const [key, sku] = location.search.split('&')[0].split('=');
 			getProductBySku(sku);
 		}
 	}, []);
@@ -172,6 +186,8 @@ function EditorView() {
 					selectedSubCategory,
 					selectedModelType,
 					selectedSide,
+					token,
+					productId,
 					selectedObjectsConfig,
 					elementType,
 					isFirstUse,

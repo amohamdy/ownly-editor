@@ -22,7 +22,7 @@ const MobileHeader = (props: Props) => {
 	const { children } = props;
 	const { onChangeCanvasColor } = props;
 	const classes = useStyles();
-	const { onSubmitData, selectedSide, selectedModelType, onSetSelectedSide, canvasColor } = useContext(EditorContext);
+	const { onSubmitData, token, productId, selectedSide, selectedModelType, onSetSelectedSide, canvasColor } = useContext(EditorContext);
 	const { width, height } = useWindowDimensions();
 
 	const availableSides = useMemo(() => {
@@ -87,7 +87,7 @@ const MobileHeader = (props: Props) => {
 								}}
 								variant='contained'
 								className={classes.submitButton}
-								onClick={onSubmitData}>
+								onClick={() => onSubmitData(productId, token)}>
 								Done
 							</Button>
 						</Box>
@@ -248,7 +248,7 @@ const MobileHeader = (props: Props) => {
 							<Button
 								variant='contained'
 								className={classes.submitButton}
-								onClick={onSubmitData}
+								onClick={() => onSubmitData(productId, token)}
 								style={{
 									boxShadow: 'inset 14px 16px 8px -10px #b9bbea',
 								}}>
@@ -266,7 +266,7 @@ const MobileHeader = (props: Props) => {
 const Header = (props: Props) => {
 	const { children } = props;
 	const classes = useStyles();
-	const { onSubmitData } = useContext(EditorContext);
+	const { onSubmitData, token, productId } = useContext(EditorContext);
 	const { width, height } = useWindowDimensions();
 
 	return (width ?? 0) > 700 && (height ?? 0) > 450 ? (
@@ -317,7 +317,7 @@ const Header = (props: Props) => {
 						variant='contained'
 						className={classes.submitButton}
 						endIcon={<ShoppingBasket />}
-						onClick={onSubmitData}
+						onClick={() => onSubmitData(productId, token)}
 						style={{
 							boxShadow: 'inset 14px 16px 8px -10px #b9bbea',
 						}}>

@@ -23,6 +23,8 @@ type State = {
   gameManager?: GameManager;
   selectedRenderMode: RenderMode;
   threeD: string;
+  token: string;
+  productId: string;
   selectedModelType: ModelType;
   selectedSide: keyof typeof SideTypes;
   selectedCategory?: Categories;
@@ -67,7 +69,7 @@ type State = {
   applyImageFilter: (selectedId: fabric.IGrayscaleFilter) => void;
   drawShapeById: (shapeId: ShapeTypes) => void;
   onApplyImage: () => void;
-  onSubmitData: () => void;
+  onSubmitData: (id:string,token:string) => void;
 };
 
 const EditorContext = React.createContext<State>({
@@ -79,6 +81,8 @@ const EditorContext = React.createContext<State>({
   canvasColor: '#FFFFFF',
   bottomMenu: 'CircularMenu',
   threeD: '',
+  token: '',
+  productId: '',
   showRightMenu: false,
   setShowRightMenu: (show: boolean) => {},
   onSelectSvgIcon: () => {},

@@ -998,13 +998,30 @@ const useEditorActions = () => {
     gameManager?.studioSceneManager.applyTexture(imgData);
   }, [fabricCanvas, gameManager, selectedSide]);
 
-  const onSubmitData = useCallback(() => {
+  const onSubmitData = useCallback(async (id:any,token:any) => {
 
     const svg = (fabricCanvas as Canvas).toSVG();
     console.log("Svg --->  ", svg)
 
-    console.log("sidesData", sidesData);
-    console.log("sidesData images", imgsSidesData);
+    // console.log("sidesData", JSON.stringify(sidesData));
+    // console.log("sidesData images", imgsSidesData);
+    const payload = {
+      "customerDesign": {
+        "productId": id,
+        "json": JSON.stringify(sidesData),
+      }
+    }
+    const response = await fetch('https://server.ownly.net/rest/V1/productdesign/save', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    const data = response.json();
+    console.log("save data", data); 
+
   }, [fabricCanvas, imgsSidesData, sidesData]);
 
   const onDraw = useCallback(
