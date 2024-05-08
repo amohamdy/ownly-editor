@@ -12,7 +12,10 @@ export default class LoaderManager {
 	loadModelById(modelId, onFinish, configData, threeD) {
 		//Load Model
 		const assetsManager = new BABYLON.AssetsManager(this.scene);
-		const model_task = assetsManager.addMeshTask('model_task', '', `${window.location.origin}/assets/images/`, `${threeD}`);
+		const modelName = threeD.split('/');
+		const fileName = modelName.pop();
+		console.log('modelname', threeD, modelName.join('/'), fileName);
+		const model_task = assetsManager.addMeshTask('model_task', '', modelName.join('/'), `/${fileName}`);
 		BABYLON.material;
 		model_task.onSuccess = (task) => {
 			const modelMesh = task.loadedMeshes.find((mesh) => mesh.id === '__root__');

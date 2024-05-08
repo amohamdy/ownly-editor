@@ -1019,8 +1019,11 @@ const useEditorActions = () => {
         'Content-Type': 'application/json'
       }
     })
-    const data = response.json();
-    console.log("save data", data); 
+    if (response.status === 200) {
+      window.location.href = 'http://localhost3000/my-designs'
+    }
+    // const data = response.json();
+    // console.log("save data", data); 
 
   }, [fabricCanvas, imgsSidesData, sidesData]);
 

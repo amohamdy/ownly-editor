@@ -151,7 +151,7 @@ function EditorView() {
 				return {
 					id: side.id.toUpperCase(),
 					name: side.id,
-					iconSrc: `assets/icons/sides/${side.filename}`,
+					iconSrc: side.filename,
 					configs: {
 						alpha: 1.5,
 						beta: 1.4,
