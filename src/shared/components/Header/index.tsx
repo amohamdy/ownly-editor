@@ -10,8 +10,6 @@ import EditorContext from '../../../modules/Editor/views/EditorView/context/Edit
 import useWindowDimensions from '../../../hooks/useWindowDimensions';
 import clsx from 'clsx';
 import { ReactSVG } from 'react-svg';
-import { modelsConfigs } from 'modules/Editor/views/EditorView/Editor/configs';
-import useEditorActions from 'modules/Editor/actions/useEditorActions';
 
 interface Props {
 	children: React.ReactNode;
@@ -65,7 +63,15 @@ const MobileHeader = (props: Props) => {
 				<>
 					<Box height={'100%'} display={'flex'} justifyContent={'space-between'}>
 						<Box display={'flex'} gap={1} alignItems={'center'} ml={2} minWidth={'172px'}>
-							<IconButton size='small' aria-label='menu' color='inherit' aria-controls='notification-menu' aria-haspopup='true' onClick={() => {}}>
+							<IconButton
+								size='small'
+								aria-label='menu'
+								color='inherit'
+								aria-controls='notification-menu'
+								aria-haspopup='true'
+								onClick={() => {
+									window.location.href = 'http://ownly.net';
+								}}>
 								<BackIcon />
 							</IconButton>
 							<Avatar variant='rounded' className={classes.logo}>
@@ -164,7 +170,15 @@ const MobileHeader = (props: Props) => {
 				<>
 					<Box height={'100%'} display={'flex'} justifyContent={'space-between'}>
 						<Box display={'flex'} gap={1} alignItems={'center'} ml={2} minWidth={'172px'}>
-							<IconButton size='small' aria-label='menu' color='inherit' aria-controls='notification-menu' aria-haspopup='true' onClick={() => {}}>
+							<IconButton
+								size='small'
+								aria-label='menu'
+								color='inherit'
+								aria-controls='notification-menu'
+								aria-haspopup='true'
+								onClick={() => {
+									window.location.href = 'http://ownly.net';
+								}}>
 								<BackIcon />
 							</IconButton>
 							<Avatar variant='rounded' className={classes.logo}>
@@ -273,7 +287,15 @@ const Header = (props: Props) => {
 		<AppBar elevation={0} className={classes.headerWrapper}>
 			<Box height={'100%'} display={'flex'} justifyContent={'space-between'}>
 				<Box display={'flex'} alignItems={'center'} ml={2} minWidth={'172px'}>
-					<IconButton size='large' aria-label='menu' color='inherit' aria-controls='notification-menu' aria-haspopup='true' onClick={() => {}}>
+					<IconButton
+						size='large'
+						aria-label='menu'
+						color='inherit'
+						aria-controls='notification-menu'
+						aria-haspopup='true'
+						onClick={() => {
+							window.location.href = 'http://ownly.net';
+						}}>
 						<BackIcon />
 					</IconButton>
 					<Avatar variant='rounded' className={classes.logo}>

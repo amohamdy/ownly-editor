@@ -1020,7 +1020,7 @@ const useEditorActions = () => {
       }
     })
     if (response.status === 200) {
-      window.location.href = 'http://localhost3000/my-designs'
+      window.location.href = 'http://ownly.net/my-designs'
     }
     // const data = response.json();
     // console.log("save data", data); 
