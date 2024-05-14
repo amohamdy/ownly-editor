@@ -997,30 +997,49 @@ const useEditorActions = () => {
     //
     gameManager?.studioSceneManager.applyTexture(imgData);
   }, [fabricCanvas, gameManager, selectedSide]);
-
-  const onSubmitData = useCallback(async (id:any,token:any) => {
+  const applyImageFromBE = (json: any) => {
+    setSideData(json.sidesData);
+    onInit2DEditor()
+  };
+  const onSubmitData = useCallback(async (id:any,token:any,design?:any) => {
 
     const svg = (fabricCanvas as Canvas).toSVG();
     console.log("Svg --->  ", svg)
 
     // console.log("sidesData", JSON.stringify(sidesData));
     // console.log("sidesData images", imgsSidesData);
+    const json = { sidesData, imgsSidesData }
+    console.log("length",JSON.stringify(json).length)
     const payload = {
       "customerDesign": {
         "productId": id,
-        "json": JSON.stringify(sidesData),
+        "json": JSON.stringify(json),
       }
     }
-    const response = await fetch('https://server.ownly.net/rest/V1/productdesign/save', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    if (design) {
+      const response = await fetch(`https://server.ownly.net/rest/V1/productdesign/${design}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (response.status === 200) {
+        window.location.href = 'https://ownly.net/my-designs'
       }
-    })
-    if (response.status === 200) {
-      window.location.href = 'http://ownly.net/my-designs'
+    } else {
+      const response = await fetch('https://server.ownly.net/rest/V1/productdesign/save', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (response.status === 200) {
+        window.location.href = 'https://ownly.net/my-designs'
+      }
     }
     // const data = response.json();
     // console.log("save data", data); 
@@ -1399,6 +1418,7 @@ const useEditorActions = () => {
     bottomMenuVisibility,
     setSelectedRenderMode,
     onSelectFistSide,
+    applyImageFromBE,
     isDrawingMode,
     setGameManager,
     onInit2DEditor,

@@ -14,8 +14,8 @@ export default class LoaderManager {
 		const assetsManager = new BABYLON.AssetsManager(this.scene);
 		const modelName = threeD.split('/');
 		const fileName = modelName.pop();
-		console.log('modelname', threeD, modelName.join('/'), fileName);
-		const model_task = assetsManager.addMeshTask('model_task', '', modelName.join('/'), `/${fileName}`);
+		console.log('modelname', modelName, fileName);
+		const model_task = assetsManager.addMeshTask('model_task', '', threeD);
 		BABYLON.material;
 		model_task.onSuccess = (task) => {
 			const modelMesh = task.loadedMeshes.find((mesh) => mesh.id === '__root__');

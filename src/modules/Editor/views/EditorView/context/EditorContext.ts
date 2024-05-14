@@ -25,6 +25,7 @@ type State = {
   threeD: string;
   token: string;
   productId: string;
+  designId: string;
   selectedModelType: ModelType;
   selectedSide: keyof typeof SideTypes;
   selectedCategory?: Categories;
@@ -69,7 +70,7 @@ type State = {
   applyImageFilter: (selectedId: fabric.IGrayscaleFilter) => void;
   drawShapeById: (shapeId: ShapeTypes) => void;
   onApplyImage: () => void;
-  onSubmitData: (id:string,token:string) => void;
+  onSubmitData: (id:string,token:string,productId?:string) => void;
 };
 
 const EditorContext = React.createContext<State>({
@@ -83,6 +84,7 @@ const EditorContext = React.createContext<State>({
   threeD: '',
   token: '',
   productId: '',
+  designId: '',
   showRightMenu: false,
   setShowRightMenu: (show: boolean) => {},
   onSelectSvgIcon: () => {},

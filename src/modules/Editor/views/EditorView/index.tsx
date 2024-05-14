@@ -24,6 +24,7 @@ function EditorView() {
 	const [selectedModelType, setSelectedModelType] = useState<any>(null);
 	const [token, setToken] = useState('');
 	const [productId, setProductId] = useState('');
+	const [designId, setDesignId] = useState('');
 	const [threeD, setThreeD] = useState('');
 	const [leftArcMenuState, setLeftArcMenuState] = useState(true);
 	const [rightArcMenuState, setRightArcMenuState] = useState(true);
@@ -78,6 +79,7 @@ function EditorView() {
 		onDraw,
 		isDrawingMode,
 		cancelDrawing,
+		applyImageFromBE,
 		getImagesFilters,
 		applyImageFilter,
 		drawShapeById,
@@ -100,15 +102,7 @@ function EditorView() {
 				return (width ?? 0) > 700 && (height ?? 0) > 450 ? <LeftArcMenu onChangeCanvasColor={onChangeCanvasColor} /> : null;
 		}
 	}, [onChangeCanvasColor, selectedCategory]);
-	const removeQueryParam = (paramName: string) => {
-		const searchParams = new URLSearchParams(location.search);
-		searchParams.delete(paramName);
 
-		history.replace({
-			pathname: location.pathname,
-			search: searchParams.toString(),
-		});
-	};
 	const renderRightSideMenu = useMemo(() => {
 		switch (selectedCategory) {
 			case 'Templates':
@@ -147,7 +141,7 @@ function EditorView() {
 		setProductId(data.items[0].id);
 		setSelectedModelType({
 			id: data.items[0].sku,
-			sides: data.items[0].extension_attributes.editor_data.map((side: any) => {
+			sides: data.items[0].extension_attributes.editor_data?.map((side: any) => {
 				return {
 					id: side.id.toUpperCase(),
 					name: side.id,
@@ -165,12 +159,31 @@ function EditorView() {
 		setThreeD(data.items[0].custom_attributes.find((attr: any) => attr.attribute_code === 'model_3d_filename')?.value);
 	};
 
+	const getDesign = async (id: any, token: string) => {
+		const res = await fetch(`https://server.ownly.net/rest/V1/productdesign/${id}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		const data = await res.json();
+		// const json = awaidata.json);
+		console.log('design data', data);
+		setDesignId(id);
+		// console.log('design data length', data.json.length);
+		applyImageFromBE(JSON.parse(data.json));
+	};
+
 	useEffect(() => {
 		if (location.search) {
-			setToken(location.search.split('&')[1]?.split('=')[1]);
-			removeQueryParam('token');
-			const [key, sku] = location.search.split('&')[0].split('=');
+			const [k, sku] = location.search.split('&')[0].split('=');
 			getProductBySku(sku);
+			const [key, design] = location.search.split('&')[1].split('=');
+			if (key === 'design') {
+				getDesign(design, location.search.split('&')[2]?.split('=')[1]);
+				setToken(location.search.split('&')[2]?.split('=')[1]);
+			} else {
+				setToken(design);
+			}
 		}
 	}, []);
 
@@ -188,6 +201,7 @@ function EditorView() {
 					selectedSide,
 					token,
 					productId,
+					designId,
 					selectedObjectsConfig,
 					elementType,
 					isFirstUse,
