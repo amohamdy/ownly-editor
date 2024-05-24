@@ -128,7 +128,7 @@ function EditorView() {
 	const handleClickRightCollapse = () => {
 		setRightArcMenuState(!rightArcMenuState);
 	};
-
+	// function to get product data on mount and we take the sides from here and the 3d model and set the states
 	const getProductBySku = async (sku: string) => {
 		const res = await fetch(
 			'https://server.ownly.net/rest/V1/products?' +
@@ -158,7 +158,7 @@ function EditorView() {
 		});
 		setThreeD(data.items[0].custom_attributes.find((attr: any) => attr.attribute_code === 'model_3d_filename')?.value);
 	};
-
+	// function to get design by id on mount
 	const getDesign = async (id: any, token: string) => {
 		const res = await fetch(`https://server.ownly.net/rest/V1/productdesign/${id}`, {
 			headers: {
@@ -174,6 +174,7 @@ function EditorView() {
 	};
 
 	useEffect(() => {
+		// get params from url and save them in states ( token , sku, design_id)
 		if (location.search) {
 			const [k, sku] = location.search.split('&')[0].split('=');
 			getProductBySku(sku);

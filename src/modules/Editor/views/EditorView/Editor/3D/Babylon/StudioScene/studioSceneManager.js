@@ -80,6 +80,7 @@ export default class StudioSceneManager {
 		console.log('selectedModelConfig', this.selectedModelConfig);
 		//Create LoadManager instance
 		this.loaderManager = new LoaderManager(this);
+		// here we give bablon 3d editor the url of the 3d model
 		this.loaderManager.loadModelById('t-shrit', onFinish, configData, threeD); //start load mainBike
 
 		// this.scene.debugLayer.show();

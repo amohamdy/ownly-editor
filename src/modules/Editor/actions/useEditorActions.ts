@@ -1002,7 +1002,7 @@ const useEditorActions = () => {
     onInit2DEditor()
   };
   const onSubmitData = useCallback(async (id:any,token:any,design?:any) => {
-
+    // save and order
     const svg = (fabricCanvas as Canvas).toSVG();
     console.log("Svg --->  ", svg)
 
@@ -1016,6 +1016,7 @@ const useEditorActions = () => {
         "json": JSON.stringify(json),
       }
     }
+    // if there is an old design we update it here
     if (design) {
       const response = await fetch(`https://server.ownly.net/rest/V1/productdesign/${design}`, {
         method: 'PUT',
@@ -1029,6 +1030,7 @@ const useEditorActions = () => {
         window.location.href = 'https://ownly.net/my-designs'
       }
     } else {
+      // save the design is its the first time
       const response = await fetch('https://server.ownly.net/rest/V1/productdesign/save', {
         method: 'POST',
         body: JSON.stringify(payload),
