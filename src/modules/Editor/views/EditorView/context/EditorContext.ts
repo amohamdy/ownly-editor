@@ -26,6 +26,7 @@ type State = {
   token: string;
   productId: string;
   designId: string;
+  setLoading: any;
   selectedModelType: ModelType;
   selectedSide: keyof typeof SideTypes;
   selectedCategory?: Categories;
@@ -85,6 +86,7 @@ const EditorContext = React.createContext<State>({
   token: '',
   productId: '',
   designId: '',
+  setLoading: () => {},
   showRightMenu: false,
   setShowRightMenu: (show: boolean) => {},
   onSelectSvgIcon: () => {},

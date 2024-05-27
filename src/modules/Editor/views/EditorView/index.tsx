@@ -9,6 +9,7 @@ import Footer from './Footer';
 import RenderSwitch from './RenderSwitch';
 import LeftSide from './LeftSide';
 import Editor from './Editor';
+import Loading from '../../../../shared/components/loading/index';
 import { LeftArcMenu, RightArcMenu } from './ArcMenus';
 import { GameManager } from './Editor/3D';
 import { ModelType } from './Editor/utilities';
@@ -19,6 +20,9 @@ import { Canvas } from 'fabric/fabric-impl';
 import useWindowDimensions from '../../../../hooks/useWindowDimensions';
 import { useHistory, useLocation } from 'react-router-dom';
 import Axios from 'axios';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 function EditorView() {
 	const [selectedModelType, setSelectedModelType] = useState<any>(null);
@@ -26,6 +30,7 @@ function EditorView() {
 	const [productId, setProductId] = useState('');
 	const [designId, setDesignId] = useState('');
 	const [threeD, setThreeD] = useState('');
+	const [show, setShow] = useState(false);
 	const [leftArcMenuState, setLeftArcMenuState] = useState(true);
 	const [rightArcMenuState, setRightArcMenuState] = useState(true);
 	const classes = useStyles();
@@ -75,6 +80,12 @@ function EditorView() {
 		onChangeBorderColor,
 		onChangeBorderStyle,
 		onChangeBorderRadius,
+		loading,
+		setLoading,
+		error,
+		setError,
+		setOpen,
+		open,
 		onChangeBorderWight,
 		onDraw,
 		isDrawingMode,
@@ -136,27 +147,41 @@ function EditorView() {
 				`searchCriteria[filter_groups][0][filters][0][value]=${sku}&` +
 				`searchCriteria[filter_groups][0][filters][0][condition_type]=eq`
 		);
-		const data = await res.json();
-		console.log('data', data.items[0]);
-		setProductId(data.items[0].id);
-		setSelectedModelType({
-			id: data.items[0].sku,
-			sides: data.items[0].extension_attributes.editor_data?.map((side: any) => {
-				return {
-					id: side.id.toUpperCase(),
-					name: side.id,
-					iconSrc: side.filename,
-					configs: {
-						alpha: 1.5,
-						beta: 1.4,
-						radius: 31,
-						canvasRatio: '1/1.14',
-					},
-					value: `Photo${side.id.substring(0, 1).toUpperCase() + side.id.substring(1)}`,
-				};
-			}),
-		});
-		setThreeD(data.items[0].custom_attributes.find((attr: any) => attr.attribute_code === 'model_3d_filename')?.value);
+		if (res.status === 200) {
+			const data = await res.json();
+			if (data.items.length > 0) {
+				setShow(true);
+				setProductId(data.items[0].id);
+				setSelectedModelType({
+					id: data.items[0].sku,
+					sides: data.items[0].extension_attributes.editor_data?.map((side: any) => {
+						return {
+							id: side.id.toUpperCase(),
+							name: side.id,
+							iconSrc: side.filename,
+							configs: {
+								alpha: 1.5,
+								beta: 1.4,
+								radius: 31,
+								canvasRatio: '1/1.14',
+							},
+							value: `Photo${side.id.substring(0, 1).toUpperCase() + side.id.substring(1)}`,
+						};
+					}),
+				});
+				setThreeD(data.items[0].custom_attributes.find((attr: any) => attr.attribute_code === 'model_3d_filename')?.value);
+			} else {
+				setError('no product found');
+				setOpen(true);
+				setShow(false);
+			}
+		} else {
+			const data = await res.json();
+			setError(data.message);
+			setOpen(true);
+			setShow(false);
+		}
+		setLoading(false);
 	};
 	// function to get design by id on mount
 	const getDesign = async (id: any, token: string) => {
@@ -165,27 +190,51 @@ function EditorView() {
 				Authorization: `Bearer ${token}`,
 			},
 		});
-		const data = await res.json();
-		// const json = awaidata.json);
-		console.log('design data', data);
-		setDesignId(id);
-		// console.log('design data length', data.json.length);
-		applyImageFromBE(JSON.parse(data.json));
+		if (res.status === 200) {
+			const data = await res.json();
+			setDesignId(id);
+			applyImageFromBE(JSON.parse(data.json));
+			setShow(true);
+		} else {
+			const data = await res.json();
+			setError(data.message);
+			setOpen(true);
+			setShow(false);
+		}
 	};
 
-	useEffect(() => {
+	const handleClose = () => {
+		setOpen(false);
+		setError('');
+	};
+
+	const action = (
+		<React.Fragment>
+			<IconButton size='small' aria-label='close' color='inherit' onClick={handleClose}>
+				<CloseIcon fontSize='small' />
+			</IconButton>
+		</React.Fragment>
+	);
+
+	const getMount = async () => {
+		setLoading(true);
 		// get params from url and save them in states ( token , sku, design_id)
+
 		if (location.search) {
 			const [k, sku] = location.search.split('&')[0].split('=');
-			getProductBySku(sku);
+			await getProductBySku(sku);
 			const [key, design] = location.search.split('&')[1].split('=');
 			if (key === 'design') {
-				getDesign(design, location.search.split('&')[2]?.split('=')[1]);
+				await getDesign(design, location.search.split('&')[2]?.split('=')[1]);
 				setToken(location.search.split('&')[2]?.split('=')[1]);
 			} else {
 				setToken(design);
 			}
 		}
+		setLoading(false);
+	};
+	useEffect(() => {
+		getMount();
 	}, []);
 
 	return (
@@ -208,6 +257,7 @@ function EditorView() {
 					isFirstUse,
 					canvasColor,
 					bottomMenu,
+					setLoading,
 					showRightMenu,
 					setShowRightMenu,
 					onSelectSvgIcon,
@@ -279,57 +329,78 @@ function EditorView() {
 					onApplyImage,
 					onSubmitData,
 				}}>
-				<Header onChangeCanvasColor={onChangeCanvasColor}>{!isFirstUse && <RenderSwitch />}</Header>
-				{((width ?? 0) <= 700 || (height ?? 0) <= 450) && !isFirstUse && <RenderSwitch />}
-				<Box className={clsx(classes.editorWrraper, { isFirstUse: isFirstUse })}>
+				{!loading && !show && (
+					<p style={{ position: 'fixed', color: 'white', inset: 0, display: 'grid', placeContent: 'center' }}>Somethin went wrong please try again</p>
+				)}
+				{show && (
 					<>
-						{selectedCategory !== 'PrintingTypes' && true && (
-							<Box
-								height={(width ?? 0) > 700 && (height ?? 0) > 450 ? '100%' : 0}
-								display={'flex'}
-								alignItems={'center'}
-								justifyContent={'flex-start'}
-								minWidth={'360px'}>
-								{true && renderLeftSideMenu}
-								{!isFirstUse && (width ?? 0) > 700 && (height ?? 0) > 450 && (
-									<Box display={'flex'} alignItems={'center'} paddingLeft={'15px'} zIndex={111}>
-										<Box display={'flex'} flexDirection={'column'} alignItems={'center'} width={'65px'} onClick={handleClickLeftCollapse}>
-											<IconLeftArrow className={leftArcMenuState ? clsx(classes.rotateLeft) : clsx(classes.normal)} />
+						<Header onChangeCanvasColor={onChangeCanvasColor}>{!isFirstUse && <RenderSwitch />}</Header>
+						{((width ?? 0) <= 700 || (height ?? 0) <= 450) && !isFirstUse && <RenderSwitch />}
+						<Box className={clsx(classes.editorWrraper, { isFirstUse: isFirstUse })}>
+							<>
+								{selectedCategory !== 'PrintingTypes' && true && (
+									<Box
+										height={(width ?? 0) > 700 && (height ?? 0) > 450 ? '100%' : 0}
+										display={'flex'}
+										alignItems={'center'}
+										justifyContent={'flex-start'}
+										minWidth={'360px'}>
+										{true && renderLeftSideMenu}
+										{!isFirstUse && (width ?? 0) > 700 && (height ?? 0) > 450 && (
+											<Box display={'flex'} alignItems={'center'} paddingLeft={'15px'} zIndex={111}>
+												<Box display={'flex'} flexDirection={'column'} alignItems={'center'} width={'65px'} onClick={handleClickLeftCollapse}>
+													<IconLeftArrow className={leftArcMenuState ? clsx(classes.rotateLeft) : clsx(classes.normal)} />
+													<Box color={'#CACCD2'} fontSize={'12px'}>
+														{leftArcMenuState ? 'Menu' : 'Arc'}
+													</Box>
+												</Box>
+											</Box>
+										)}
+									</Box>
+								)}
+							</>
+							<>
+								<Editor />
+								{selectedCategory !== 'PrintingTypes' && !isFirstUse && (width ?? 0) > 700 && (height ?? 0) > 450 && (
+									<Box display={'flex'} alignItems={'center'}>
+										<Box display={'flex'} flexDirection={'column'} alignItems={'center'} width={'65px'} onClick={handleClickRightCollapse}>
+											<IconRightArrow className={rightArcMenuState ? clsx(classes.rotateRight) : clsx(classes.normal)} />
 											<Box color={'#CACCD2'} fontSize={'12px'}>
-												{leftArcMenuState ? 'Menu' : 'Arc'}
+												{rightArcMenuState ? 'Collapse' : 'Expand'}
 											</Box>
 										</Box>
 									</Box>
 								)}
-							</Box>
-						)}
-					</>
-					<>
-						<Editor />
-						{selectedCategory !== 'PrintingTypes' && !isFirstUse && (width ?? 0) > 700 && (height ?? 0) > 450 && (
-							<Box display={'flex'} alignItems={'center'}>
-								<Box display={'flex'} flexDirection={'column'} alignItems={'center'} width={'65px'} onClick={handleClickRightCollapse}>
-									<IconRightArrow className={rightArcMenuState ? clsx(classes.rotateRight) : clsx(classes.normal)} />
-									<Box color={'#CACCD2'} fontSize={'12px'}>
-										{rightArcMenuState ? 'Collapse' : 'Expand'}
-									</Box>
-								</Box>
-							</Box>
-						)}
-					</>
+							</>
 
-					{selectedCategory !== 'PrintingTypes' && !isFirstUse && (
-						<Box
-							height={(width ?? 0) > 700 && (height ?? 0) < 450 ? 0 : '100%'}
-							display={'flex'}
-							alignItems={'center'}
-							justifyContent={(width ?? 0) > 700 && (height ?? 0) > 450 ? 'flex-end' : 'center'}
-							minWidth={'360px'}>
-							{rightArcMenuState && renderRightSideMenu}
+							{selectedCategory !== 'PrintingTypes' && !isFirstUse && (
+								<Box
+									height={(width ?? 0) > 700 && (height ?? 0) < 450 ? 0 : '100%'}
+									display={'flex'}
+									alignItems={'center'}
+									justifyContent={(width ?? 0) > 700 && (height ?? 0) > 450 ? 'flex-end' : 'center'}
+									minWidth={'360px'}>
+									{rightArcMenuState && renderRightSideMenu}
+								</Box>
+							)}
 						</Box>
-					)}
-				</Box>
+					</>
+				)}
 				{!isFirstUse && <Footer />}
+				<Snackbar
+					sx={{
+						'& .MuiSnackbarContent-root': {
+							backgroundColor: 'red',
+							color: '#fff',
+						},
+					}}
+					open={open}
+					autoHideDuration={6000}
+					onClose={handleClose}
+					message={error}
+					action={action}
+				/>
+				{loading && <Loading />}
 			</EditorContext.Provider>
 		</Box>
 	);

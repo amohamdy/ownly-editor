@@ -29,9 +29,8 @@ interface Props {
 }
 function Editor3D(props: Props) {
 	const { isResize } = props;
-	const { selectedCategory, gameManager, onSetGameManager, selectedModelType, threeD, selectedSide, selectedRenderMode, isFirstUse } =
+	const { selectedCategory, gameManager, onSetGameManager, selectedModelType, threeD, selectedSide, selectedRenderMode, isFirstUse, setLoading } =
 		useContext(EditorContext);
-	console.log('3D', threeD);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const classes = useStyles();
 	const { width, height } = useWindowDimensions();
@@ -65,7 +64,8 @@ function Editor3D(props: Props) {
 				{
 					selectedModelType,
 				},
-				threeD
+				threeD,
+				setLoading
 			) as any; //Create Babylonjs Ref
 			GManger.studioSceneManager.handlers = studioSceneHandlers; //Hnadlers
 			onSetGameManager(GManger);

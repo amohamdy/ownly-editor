@@ -80,6 +80,9 @@ const useEditorActions = () => {
   const [canvasColor, setCanvasColor] = useState<string>("#FFFFFF");
   const [fabricCanvas, setFabricCanvas] = useState<Canvas>();
   const [gameManager, setGameManager] = useState<GameManager>();
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [selectedSide, setSelectedSide] =
     useState<keyof typeof SideTypes>("FRONT");
   const [sidesData, setSideData] = useState<SideData>({
@@ -1018,6 +1021,7 @@ const useEditorActions = () => {
     }
     // if there is an old design we update it here
     if (design) {
+      setLoading(true)
       const response = await fetch(`https://server.ownly.net/rest/V1/productdesign/${design}`, {
         method: 'PUT',
         body: JSON.stringify(payload),
@@ -1026,10 +1030,16 @@ const useEditorActions = () => {
           'Content-Type': 'application/json'
         }
       })
+      setLoading(false)
       if (response.status === 200) {
         window.location.href = 'https://ownly.net/my-designs'
+      } else {
+        const data = await response.json()
+        setError(data.message)
+        setOpen(true);
       }
     } else {
+      setLoading(true);
       // save the design is its the first time
       const response = await fetch('https://server.ownly.net/rest/V1/productdesign/save', {
         method: 'POST',
@@ -1039,12 +1049,15 @@ const useEditorActions = () => {
           'Content-Type': 'application/json'
         }
       })
+      setLoading(false);
       if (response.status === 200) {
         window.location.href = 'https://ownly.net/my-designs'
+      } else {
+        const data = await response.json()
+        setError(data.message)
+        setOpen(true);
       }
     }
-    // const data = response.json();
-    // console.log("save data", data); 
 
   }, [fabricCanvas, imgsSidesData, sidesData]);
 
@@ -1424,6 +1437,12 @@ const useEditorActions = () => {
     isDrawingMode,
     setGameManager,
     onInit2DEditor,
+    open,
+    setOpen,
+    loading,
+    setLoading,
+    error,
+    setError,
     discardActiveObjects,
     selectedElementType,
     getSelectedObjects,

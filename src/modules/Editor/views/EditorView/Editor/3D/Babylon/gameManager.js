@@ -1,6 +1,7 @@
 import StudioSceneManager from './StudioScene/studioSceneManager';
 
-export default function GameManger(canvas, engine, onFinish, configData, threeD) {
+export default function GameManger(props) {
+	const { canvas, engine, onFinish, configData, threeD, setLoading } = props;
 	//Define Canvas
 	this.canvas = canvas;
 
@@ -10,7 +11,7 @@ export default function GameManger(canvas, engine, onFinish, configData, threeD)
 
 	//Create StudioScene Instacne (StudioScene Manager)
 	this.studioSceneManager = new StudioSceneManager(this);
-	this.currentScene = this.studioSceneManager.createScene(onFinish, configData, threeD);
+	this.currentScene = this.studioSceneManager.createScene(onFinish, configData, threeD, setLoading);
 
 	// The render function
 	this.engine.runRenderLoop(() => {

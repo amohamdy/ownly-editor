@@ -40,7 +40,7 @@ export default class StudioSceneManager {
 	}
 
 	//#region  MainSceneProperties
-	createScene(onFinish, configData, threeD) {
+	createScene(onFinish, configData, threeD, setLoading) {
 		const { selectedModelType } = configData;
 		//Create Bts Scene
 		//Create Scene
@@ -81,7 +81,7 @@ export default class StudioSceneManager {
 		//Create LoadManager instance
 		this.loaderManager = new LoaderManager(this);
 		// here we give bablon 3d editor the url of the 3d model
-		this.loaderManager.loadModelById('t-shrit', onFinish, configData, threeD); //start load mainBike
+		this.loaderManager.loadModelById('t-shrit', onFinish, configData, threeD, setLoading); //start load mainBike
 
 		// this.scene.debugLayer.show();
 		return this.scene;

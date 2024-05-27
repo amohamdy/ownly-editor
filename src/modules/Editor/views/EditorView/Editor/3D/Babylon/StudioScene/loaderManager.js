@@ -9,7 +9,7 @@ export default class LoaderManager {
 		this.sceneManager = sceneManager;
 	}
 
-	loadModelById(modelId, onFinish, configData, threeD) {
+	loadModelById(modelId, onFinish, configData, threeD, setLoading) {
 		//Load Model
 		const assetsManager = new BABYLON.AssetsManager(this.scene);
 		const modelName = threeD.split('/');
@@ -48,9 +48,9 @@ export default class LoaderManager {
 		};
 
 		assetsManager.onFinish = (tasks) => {
-			// console.log("disable Loading bar");
+			setLoading(false);
 		};
-		// Start loading
+		setLoading(true);
 		assetsManager.useDefaultLoadingScreen = false;
 		assetsManager.load();
 	}
